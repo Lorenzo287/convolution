@@ -1,0 +1,21 @@
+# Build outputs
+build/
+*.exe
+*.o
+*.obj
+nob
+
+# Python
+venv/
+__pycache__/
+*.pyc
+.psenvrc
+
+# Development tools & Caches
+.cache/
+compile_commands.json
+.vscode/
+
+# OS files
+Thumbs.db
+.DS_Store
