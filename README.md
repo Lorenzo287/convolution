@@ -80,7 +80,9 @@ The compiled executable expects three arguments: input file, impulse response, a
 ## Implementation Details
 
 The convolution is performed in the time domain:
+
 $$ y[n] = \sum_{k=0}^{M-1} x[n-k] \cdot h[k] $$
+
 Where:
 - $x$ is the input signal.
 - $h$ is the impulse response of length $M$.
