@@ -10,7 +10,7 @@ This project implements a simple convolution engine that applies an Impulse Resp
 - **Key Features:**
     - Support for mono and stereo WAV files (interleaved).
     - Naive time-domain convolution implementation.
-    - Real-time progress bar with throttled updates (every 1024 samples) for performance.
+    - Real-time progress bar with throttled updates (every 1024 iterations) for performance.
     - Decoupled DSP and UI logic using a callback-based architecture.
     - Automatic build system using `nob.c`.
     - Memory leak detection via `stb_leakcheck.h` (optional).
@@ -18,16 +18,16 @@ This project implements a simple convolution engine that applies an Impulse Resp
 ## Performance Optimizations
 
 During the latest development session, several "micro-optimizations" were applied to the naive algorithm:
+- **Interleaved Cache Locality:** Re-ordered loops to process all channels in a single pass over the audio data. Since WAV files are interleaved (L, R, L, R...), this ensures sequential memory access for both input and output buffers, significantly reducing cache misses.
 - **Branchless Inner Loop:** The loop bounds for the kernel are pre-calculated for every output sample, removing a conditional `if` check from the billion-iteration inner loop.
 - **Throttled Progress Callback:** The UI update is now triggered only once every 1024 iterations, significantly reducing function call overhead and float-to-int conversions.
-- **Macro-based Sampling:** Replaced function calls with pre-processor macros to ensure zero-cost abstraction for interleaved sample access.
+- **Macro-based Sampling:** Re-introduced pre-processor macros (e.g., `X(n, c)`) for "math-like" readability and zero-cost abstraction for interleaved sample access.
 
 ## Future Improvements
 
 To further improve performance, the following techniques could be implemented:
 - **FFT Convolution:** Transitioning to the frequency domain using the Fast Fourier Transform (Overlap-Add/Save) to reduce complexity from $O(N \cdot M)$ to $O(N \log N)$.
 - **Parallelization:** Utilizing **OpenMP** or threads to process audio channels or chunks in parallel.
-- **Cache Locality:** Refactoring the loops to process interleaved channels simultaneously (L+R in one pass) rather than iterating through the entire file one channel at a time.
 - **SIMD (Vectorization):** Using SSE/AVX intrinsics to perform multiple multiply-accumulate operations in a single clock cycle.
 
 ## Project Structure
@@ -51,6 +51,8 @@ The project uses a "nob" style build system.
     ```powershell
     # On Windows (MSVC)
     cl.exe nob.c
+    # On Windows (GCC/MinGW)
+    gcc nob.c -o nob.exe
     # On Linux/macOS (GCC/Clang)
     gcc -o nob nob.c
     ```
@@ -75,7 +77,7 @@ The compiled executable expects three arguments: input file, impulse response, a
 - **Sample Rates:** The input and impulse response must have matching sample rates.
 - **Memory Management:** Use `drwav_free` for `dr_wav` allocations and standard `free` for others. When `DEBUG` is defined, `stb_leakcheck` is used to track allocations.
 - **UI/DSP Separation:** Keep DSP functions (like `convolve_naive`) independent of UI logic. Use the `ProgressCallback` pattern for reporting status.
-- **Interleaving:** The convolution logic handles interleaved channels by iterating through each channel separately.
+- **Interleaving:** The convolution logic handles interleaved channels by processing all channels simultaneously (L+R in one pass) to maximize cache efficiency.
 
 ## Implementation Details
 
@@ -88,4 +90,4 @@ Where:
 - $h$ is the impulse response of length $M$.
 - $y$ is the output signal.
 
-The implementation in `main.c` uses a direct loop that iterates over each output sample and calculates the weighted sum. To ensure high performance, the kernel indices ($k$) are pre-calculated for each $n$ to stay within the bounds of the input signal, eliminating the need for branching inside the most critical part of the code.
+The implementation in `main.c` uses a direct loop that iterates over each output sample and calculates the weighted sum for all channels concurrently. To ensure high performance, the kernel indices ($k$) are pre-calculated for each $n$ to stay within the bounds of the input signal, eliminating the need for branching inside the inner loop.

@@ -17,36 +17,49 @@ https://www.dspguide.com/ch18/2.htm
 typedef void (*ProgressCallback)(size_t current, size_t total);
 void update_progress_bar(size_t current, size_t total);
 
+enum { MONO = 0, LEFT = 0, RIGHT = 1 };
+
 void convolve_naive(const float *pInput, size_t inputSize, const float *pKernel,
                     size_t kernelSize, float *pOutput, unsigned int inputChannels,
                     unsigned int kernelChannels, ProgressCallback onProgress) {
     // MACROS for math-like readability
-#define X(nk) pInput[(nk) * inputChannels + ch]
-#define H(k) \
-    ((kernelChannels == 1) ? pKernel[(k)] : pKernel[(k) * kernelChannels + ch])
-#define Y(n) pOutput[(n) * inputChannels + ch]
+#define X(nk, c) (pInput[(nk) * inputChannels + (c)])
+#define H(k, c) \
+    ((kernelChannels == 1) ? (pKernel[(k)]) : (pKernel[(k) * kernelChannels + (c)]))
+#define Y(n, c) (pOutput[(n) * inputChannels + (c)])
 
     size_t outputSize = inputSize + kernelSize - 1;
     size_t totalIterations = (size_t)inputChannels * outputSize;
     size_t currentIteration = 0;
 
-    for (unsigned int ch = 0; ch < inputChannels; ch++) {
-        for (size_t n = 0; n < outputSize; n++) {
-            float sum = 0.0f;
+    for (size_t n = 0; n < outputSize; n++) {
+        // Pre-calculate inner loop bounds
+        size_t k_start = (n >= inputSize) ? (n - inputSize + 1) : 0;
+        size_t k_end = (n < kernelSize) ? n : (kernelSize - 1);
 
-            // Pre-calculate inner loop bounds
-            size_t k_start = (n >= inputSize) ? (n - inputSize + 1) : 0;
-            size_t k_end = (n < kernelSize) ? n : (kernelSize - 1);
-
-            for (size_t k = k_start; k <= k_end; k++) { sum += X(n - k) * H(k); }
-            Y(n) = sum;
-
-            currentIteration++;
-            // Only update progress every 1024 samples
-            if (onProgress && ((currentIteration & 1023) == 0 ||
-                               currentIteration == totalIterations)) {
-                onProgress(currentIteration, totalIterations);
+        if (inputChannels == 2) {
+            float sumL = 0.0f;
+            float sumR = 0.0f;
+            for (size_t k = k_start; k <= k_end; k++) {
+                sumL += X(n - k, LEFT) * H(k, LEFT);
+                sumR += X(n - k, RIGHT) * H(k, RIGHT);
             }
+            Y(n, LEFT) = sumL;
+            Y(n, RIGHT) = sumR;
+            currentIteration += 2;
+        } else {  // mono
+            float sum = 0.0f;
+            for (size_t k = k_start; k <= k_end; k++) {
+                sum += X(n - k, MONO) * H(k, MONO);
+            }
+            Y(n, MONO) = sum;
+            currentIteration++;
+        }
+
+        // Only update progress every 1024 samples
+        if (onProgress && ((currentIteration % 1024) < inputChannels ||
+                           currentIteration >= totalIterations)) {
+            onProgress(currentIteration, totalIterations);
         }
     }
 #undef X
@@ -84,8 +97,15 @@ int main(int argc, char **argv) {
         impulsePath, &impulseChannels, &impulseSampleRate, &impulseFrameCount, NULL);
 
     if (pImpulseSamples == NULL) {
+        fprintf(stderr, "Error: Could not open impulse file '%s'\n", impulsePath);
         ret = -1;
         goto defer_input;
+    }
+
+    if (impulseChannels != 1 && impulseChannels != inputChannels) {
+        fprintf(stderr, "Error: Impulse must be mono or match input channels\n");
+        ret = -1;
+        goto defer_impulse;
     }
 
     // It would still work but reverb would be stretched -> pitched up/down
@@ -101,10 +121,12 @@ int main(int argc, char **argv) {
     size_t outSize = N + M - 1;
     unsigned int outChannels = inputChannels;
 
-    printf("Processing: %s (%zu samples) * %s (%zu samples)...\n", inputPath, N,
-           impulsePath, M);
+    printf(
+        "Processing: %s (%zu samples, %u channels) * %s (%zu samples, %u "
+        "channels)...\n",
+        inputPath, N, inputChannels, impulsePath, M, impulseChannels);
 
-    float *pOutputSamples = (float *)malloc(outSize * outChannels * sizeof(float));
+    float *pOutputSamples = malloc(outSize * outChannels * sizeof(float));
     if (pOutputSamples == NULL) {
         fprintf(stderr, "Error: Out of memory\n");
         ret = -1;
@@ -141,6 +163,7 @@ defer:
 }
 
 void update_progress_bar(size_t current, size_t total) {
+    if (total == 0) return;
     static int lastPercent = -1;
     int percent = (int)((float)current / total * 100);
 
