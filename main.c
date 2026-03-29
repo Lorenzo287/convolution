@@ -35,15 +35,25 @@ int parse_args(int argc, char **argv, Config *config);
 typedef void (*ProgressCallback)(size_t current, size_t total);
 void update_progress_bar(size_t current, size_t total);
 
-#define CH_MONO 0
-#define CH_LEFT 0
-#define CH_RIGHT 1
-
 // MACROS for math-like readability
 #define X(nk, ch) (pInput[(nk) * inputChannels + (ch)])
 #define H(k, ch) \
     ((kernelChannels == 1) ? (pKernel[(k)]) : (pKernel[(k) * kernelChannels + (ch)]))
 #define Y(n, ch) (pOutput[(n) * inputChannels + (ch)])
+
+#define CH_LEFT 0
+#define CH_RIGHT 1
+#define CH_MONO CH_LEFT
+
+#define XM(nk) X(nk, CH_MONO)
+#define XL(nk) X(nk, CH_LEFT)
+#define XR(nk) X(nk, CH_RIGHT)
+#define HM(n) H(n, CH_MONO)
+#define HL(n) H(n, CH_LEFT)
+#define HR(n) H(n, CH_RIGHT)
+#define YM(n) Y(n, CH_MONO)
+#define YL(n) Y(n, CH_LEFT)
+#define YR(n) Y(n, CH_RIGHT)
 
 void convolve_naive(const float *pInput, size_t inputSize, const float *pKernel,
                     size_t kernelSize, float *pOutput, unsigned int inputChannels,
@@ -59,17 +69,15 @@ void convolve_naive(const float *pInput, size_t inputSize, const float *pKernel,
             float sumL = 0.0f;
             float sumR = 0.0f;
             for (size_t k = k_start; k <= k_end; k++) {
-                sumL += X(n - k, CH_LEFT) * H(k, CH_LEFT);
-                sumR += X(n - k, CH_RIGHT) * H(k, CH_RIGHT);
+                sumL += XL(n - k) * HL(k);
+                sumR += XR(n - k) * HR(k);
             }
-            Y(n, CH_LEFT) = sumL;
-            Y(n, CH_RIGHT) = sumR;
+            YL(n) = sumL;
+            YR(n) = sumR;
         } else {  // mono
             float sum = 0.0f;
-            for (size_t k = k_start; k <= k_end; k++) {
-                sum += X(n - k, CH_MONO) * H(k, CH_MONO);
-            }
-            Y(n, CH_MONO) = sum;
+            for (size_t k = k_start; k <= k_end; k++) { sum += XM(n - k) * HM(k); }
+            YM(n) = sum;
         }
         // Only update progress every 2048 samples
         if (onProgress && (n % 2048 == 0)) onProgress(n, outputSize);
@@ -280,7 +288,7 @@ int parse_args(int argc, char **argv, Config *config) {
             }
         } else if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
             return 0;
-        } else if (argv[i][0] == '-') {
+        } else if (argv[i][0] == '-') {  // followed by char != m
             fprintf(stderr, "Error: Unknown argument '%s'\n", argv[i]);
             return 0;
         } else {
@@ -296,7 +304,6 @@ int parse_args(int argc, char **argv, Config *config) {
             }
         }
     }
-
     if (config->inputPath == NULL || config->impulsePath == NULL ||
         config->outputPath == NULL) {
         return 0;
