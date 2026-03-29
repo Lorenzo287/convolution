@@ -3,55 +3,56 @@ Flat profile:
 Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls   s/call   s/call  name    
-100.00      5.89     5.89        1     5.89     5.89  convolve_naive
-  0.00      5.89     0.00      148     0.00     0.00  drwav_get_bytes_per_pcm_frame
-  0.00      5.89     0.00      138     0.00     0.00  update_progress_bar
-  0.00      5.89     0.00       95     0.00     0.00  drwav__on_read_stdio
-  0.00      5.89     0.00       70     0.00     0.00  drwav__pcm_to_f32
-  0.00      5.89     0.00       70     0.00     0.00  drwav_read_pcm_frames
-  0.00      5.89     0.00       70     0.00     0.00  drwav_read_pcm_frames_le
-  0.00      5.89     0.00       70     0.00     0.00  drwav_read_raw
-  0.00      5.89     0.00       70     0.00     0.00  drwav_s16_to_f32
-  0.00      5.89     0.00       22     0.00     0.00  drwav_fourcc_equal
-  0.00      5.89     0.00       16     0.00     0.00  drwav__on_write_stdio
-  0.00      5.89     0.00       15     0.00     0.00  drwav__write
-  0.00      5.89     0.00       13     0.00     0.00  drwav__on_seek_stdio
-  0.00      5.89     0.00       10     0.00     0.00  drwav__chunk_padding_size_riff
-  0.00      5.89     0.00        8     0.00     0.00  drwav__read_chunk_header
-  0.00      5.89     0.00        7     0.00     0.00  drwav__write_u32ne_to_le
-  0.00      5.89     0.00        6     0.00     0.00  drwav__on_read
-  0.00      5.89     0.00        4     0.00     0.00  drwav__seek_forward
-  0.00      5.89     0.00        4     0.00     0.00  drwav__seek_from_start
-  0.00      5.89     0.00        4     0.00     0.00  drwav__write_u16ne_to_le
-  0.00      5.89     0.00        4     0.00     0.00  drwav_free
-  0.00      5.89     0.00        3     0.00     0.00  drwav_copy_allocation_callbacks_or_defaults
-  0.00      5.89     0.00        3     0.00     0.00  drwav_fopen
-  0.00      5.89     0.00        3     0.00     0.00  drwav_uninit
-  0.00      5.89     0.00        2     0.00     0.00  drwav__free_default
-  0.00      5.89     0.00        2     0.00     0.00  drwav__free_from_callbacks
-  0.00      5.89     0.00        2     0.00     0.00  drwav__malloc_default
-  0.00      5.89     0.00        2     0.00     0.00  drwav__malloc_from_callbacks
-  0.00      5.89     0.00        2     0.00     0.00  drwav__on_tell_stdio
-  0.00      5.89     0.00        2     0.00     0.00  drwav__read_pcm_frames_and_close_f32
-  0.00      5.89     0.00        2     0.00     0.00  drwav_init__internal
-  0.00      5.89     0.00        2     0.00     0.00  drwav_init_file
-  0.00      5.89     0.00        2     0.00     0.00  drwav_init_file__internal_FILE
-  0.00      5.89     0.00        2     0.00     0.00  drwav_init_file_ex
-  0.00      5.89     0.00        2     0.00     0.00  drwav_open_file_and_read_pcm_frames_f32
-  0.00      5.89     0.00        2     0.00     0.00  drwav_preinit
-  0.00      5.89     0.00        2     0.00     0.00  drwav_read_pcm_frames_f32
-  0.00      5.89     0.00        2     0.00     0.00  drwav_read_pcm_frames_f32__pcm
-  0.00      5.89     0.00        1     0.00     0.00  drwav__data_chunk_size_riff
-  0.00      5.89     0.00        1     0.00     0.00  drwav__riff_chunk_size_riff
-  0.00      5.89     0.00        1     0.00     0.00  drwav__write_or_count_metadata
-  0.00      5.89     0.00        1     0.00     0.00  drwav_init_file_write
-  0.00      5.89     0.00        1     0.00     0.00  drwav_init_file_write__internal
-  0.00      5.89     0.00        1     0.00     0.00  drwav_init_file_write__internal_FILE
-  0.00      5.89     0.00        1     0.00     0.00  drwav_init_write__internal
-  0.00      5.89     0.00        1     0.00     0.00  drwav_preinit_write
-  0.00      5.89     0.00        1     0.00     0.00  drwav_write_pcm_frames
-  0.00      5.89     0.00        1     0.00     0.00  drwav_write_pcm_frames_le
-  0.00      5.89     0.00        1     0.00     0.00  drwav_write_raw
+100.00      2.00     2.00        1     2.00     2.00  convolve_naive
+  0.00      2.00     0.00      118     0.00     0.00  drwav_get_bytes_per_pcm_frame
+  0.00      2.00     0.00       87     0.00     0.00  update_progress_bar
+  0.00      2.00     0.00       84     0.00     0.00  drwav__on_read_stdio
+  0.00      2.00     0.00       55     0.00     0.00  drwav__pcm_to_f32
+  0.00      2.00     0.00       55     0.00     0.00  drwav_read_pcm_frames
+  0.00      2.00     0.00       55     0.00     0.00  drwav_read_pcm_frames_le
+  0.00      2.00     0.00       55     0.00     0.00  drwav_read_raw
+  0.00      2.00     0.00       33     0.00     0.00  drwav_s24_to_f32
+  0.00      2.00     0.00       28     0.00     0.00  drwav_fourcc_equal
+  0.00      2.00     0.00       22     0.00     0.00  drwav_s16_to_f32
+  0.00      2.00     0.00       16     0.00     0.00  drwav__on_write_stdio
+  0.00      2.00     0.00       15     0.00     0.00  drwav__on_seek_stdio
+  0.00      2.00     0.00       15     0.00     0.00  drwav__write
+  0.00      2.00     0.00       12     0.00     0.00  drwav__chunk_padding_size_riff
+  0.00      2.00     0.00       10     0.00     0.00  drwav__read_chunk_header
+  0.00      2.00     0.00        7     0.00     0.00  drwav__write_u32ne_to_le
+  0.00      2.00     0.00        6     0.00     0.00  drwav__on_read
+  0.00      2.00     0.00        6     0.00     0.00  drwav__seek_forward
+  0.00      2.00     0.00        4     0.00     0.00  drwav__seek_from_start
+  0.00      2.00     0.00        4     0.00     0.00  drwav__write_u16ne_to_le
+  0.00      2.00     0.00        4     0.00     0.00  drwav_free
+  0.00      2.00     0.00        3     0.00     0.00  drwav_copy_allocation_callbacks_or_defaults
+  0.00      2.00     0.00        3     0.00     0.00  drwav_fopen
+  0.00      2.00     0.00        3     0.00     0.00  drwav_uninit
+  0.00      2.00     0.00        2     0.00     0.00  drwav__free_default
+  0.00      2.00     0.00        2     0.00     0.00  drwav__free_from_callbacks
+  0.00      2.00     0.00        2     0.00     0.00  drwav__malloc_default
+  0.00      2.00     0.00        2     0.00     0.00  drwav__malloc_from_callbacks
+  0.00      2.00     0.00        2     0.00     0.00  drwav__on_tell_stdio
+  0.00      2.00     0.00        2     0.00     0.00  drwav__read_pcm_frames_and_close_f32
+  0.00      2.00     0.00        2     0.00     0.00  drwav_init__internal
+  0.00      2.00     0.00        2     0.00     0.00  drwav_init_file
+  0.00      2.00     0.00        2     0.00     0.00  drwav_init_file__internal_FILE
+  0.00      2.00     0.00        2     0.00     0.00  drwav_init_file_ex
+  0.00      2.00     0.00        2     0.00     0.00  drwav_open_file_and_read_pcm_frames_f32
+  0.00      2.00     0.00        2     0.00     0.00  drwav_preinit
+  0.00      2.00     0.00        2     0.00     0.00  drwav_read_pcm_frames_f32
+  0.00      2.00     0.00        2     0.00     0.00  drwav_read_pcm_frames_f32__pcm
+  0.00      2.00     0.00        1     0.00     0.00  drwav__data_chunk_size_riff
+  0.00      2.00     0.00        1     0.00     0.00  drwav__riff_chunk_size_riff
+  0.00      2.00     0.00        1     0.00     0.00  drwav__write_or_count_metadata
+  0.00      2.00     0.00        1     0.00     0.00  drwav_init_file_write
+  0.00      2.00     0.00        1     0.00     0.00  drwav_init_file_write__internal
+  0.00      2.00     0.00        1     0.00     0.00  drwav_init_file_write__internal_FILE
+  0.00      2.00     0.00        1     0.00     0.00  drwav_init_write__internal
+  0.00      2.00     0.00        1     0.00     0.00  drwav_preinit_write
+  0.00      2.00     0.00        1     0.00     0.00  drwav_write_pcm_frames
+  0.00      2.00     0.00        1     0.00     0.00  drwav_write_pcm_frames_le
+  0.00      2.00     0.00        1     0.00     0.00  drwav_write_raw
 
  %         the percentage of the total running time of the
 time       program used by this function.
@@ -89,245 +90,249 @@ notice and this notice are preserved.
 		     Call graph (explanation follows)
 
 
-granularity: each sample hit covers 4 byte(s) for 0.17% of 5.89 seconds
+granularity: each sample hit covers 4 byte(s) for 0.50% of 2.00 seconds
 
 index % time    self  children    called     name
-                5.89    0.00       1/1           main [2]
-[1]    100.0    5.89    0.00       1         convolve_naive [1]
-                0.00    0.00     138/138         update_progress_bar [4]
+                2.00    0.00       1/1           main [2]
+[1]    100.0    2.00    0.00       1         convolve_naive [1]
+                0.00    0.00      87/87          update_progress_bar [4]
 -----------------------------------------------
                                                  <spontaneous>
-[2]    100.0    0.00    5.89                 main [2]
-                5.89    0.00       1/1           convolve_naive [1]
-                0.00    0.00       2/2           drwav_open_file_and_read_pcm_frames_f32 [36]
-                0.00    0.00       2/4           drwav_free [22]
-                0.00    0.00       1/1           drwav_init_file_write [43]
-                0.00    0.00       1/1           drwav_write_pcm_frames [48]
-                0.00    0.00       1/3           drwav_uninit [25]
+[2]    100.0    0.00    2.00                 main [2]
+                2.00    0.00       1/1           convolve_naive [1]
+                0.00    0.00       2/2           drwav_open_file_and_read_pcm_frames_f32 [37]
+                0.00    0.00       2/4           drwav_free [23]
+                0.00    0.00       1/1           drwav_init_file_write [44]
+                0.00    0.00       1/1           drwav_write_pcm_frames [49]
+                0.00    0.00       1/3           drwav_uninit [26]
 -----------------------------------------------
-                0.00    0.00       2/148         drwav_read_pcm_frames_f32__pcm [39]
-                0.00    0.00       6/148         drwav_init__internal [32]
-                0.00    0.00      70/148         drwav_read_raw [9]
-                0.00    0.00      70/148         drwav_read_pcm_frames_le [8]
-[3]      0.0    0.00    0.00     148         drwav_get_bytes_per_pcm_frame [3]
+                0.00    0.00       2/118         drwav_read_pcm_frames_f32__pcm [40]
+                0.00    0.00       6/118         drwav_init__internal [33]
+                0.00    0.00      55/118         drwav_read_raw [9]
+                0.00    0.00      55/118         drwav_read_pcm_frames_le [8]
+[3]      0.0    0.00    0.00     118         drwav_get_bytes_per_pcm_frame [3]
 -----------------------------------------------
-                0.00    0.00     138/138         convolve_naive [1]
-[4]      0.0    0.00    0.00     138         update_progress_bar [4]
+                0.00    0.00      87/87          convolve_naive [1]
+[4]      0.0    0.00    0.00      87         update_progress_bar [4]
 -----------------------------------------------
-                0.00    0.00       3/95          drwav_init__internal [32]
-                0.00    0.00       6/95          drwav__on_read [18]
-                0.00    0.00      16/95          drwav__read_chunk_header [16]
-                0.00    0.00      70/95          drwav_read_raw [9]
-[5]      0.0    0.00    0.00      95         drwav__on_read_stdio [5]
+                0.00    0.00       3/84          drwav_init__internal [33]
+                0.00    0.00       6/84          drwav__on_read [19]
+                0.00    0.00      20/84          drwav__read_chunk_header [17]
+                0.00    0.00      55/84          drwav_read_raw [9]
+[5]      0.0    0.00    0.00      84         drwav__on_read_stdio [5]
 -----------------------------------------------
-                0.00    0.00      70/70          drwav_read_pcm_frames_f32__pcm [39]
-[6]      0.0    0.00    0.00      70         drwav__pcm_to_f32 [6]
-                0.00    0.00      70/70          drwav_s16_to_f32 [10]
+                0.00    0.00      55/55          drwav_read_pcm_frames_f32__pcm [40]
+[6]      0.0    0.00    0.00      55         drwav__pcm_to_f32 [6]
+                0.00    0.00      33/33          drwav_s24_to_f32 [10]
+                0.00    0.00      22/22          drwav_s16_to_f32 [12]
 -----------------------------------------------
-                0.00    0.00      70/70          drwav_read_pcm_frames_f32__pcm [39]
-[7]      0.0    0.00    0.00      70         drwav_read_pcm_frames [7]
-                0.00    0.00      70/70          drwav_read_pcm_frames_le [8]
+                0.00    0.00      55/55          drwav_read_pcm_frames_f32__pcm [40]
+[7]      0.0    0.00    0.00      55         drwav_read_pcm_frames [7]
+                0.00    0.00      55/55          drwav_read_pcm_frames_le [8]
 -----------------------------------------------
-                0.00    0.00      70/70          drwav_read_pcm_frames [7]
-[8]      0.0    0.00    0.00      70         drwav_read_pcm_frames_le [8]
-                0.00    0.00      70/148         drwav_get_bytes_per_pcm_frame [3]
-                0.00    0.00      70/70          drwav_read_raw [9]
+                0.00    0.00      55/55          drwav_read_pcm_frames [7]
+[8]      0.0    0.00    0.00      55         drwav_read_pcm_frames_le [8]
+                0.00    0.00      55/118         drwav_get_bytes_per_pcm_frame [3]
+                0.00    0.00      55/55          drwav_read_raw [9]
 -----------------------------------------------
-                0.00    0.00      70/70          drwav_read_pcm_frames_le [8]
-[9]      0.0    0.00    0.00      70         drwav_read_raw [9]
-                0.00    0.00      70/148         drwav_get_bytes_per_pcm_frame [3]
-                0.00    0.00      70/95          drwav__on_read_stdio [5]
+                0.00    0.00      55/55          drwav_read_pcm_frames_le [8]
+[9]      0.0    0.00    0.00      55         drwav_read_raw [9]
+                0.00    0.00      55/118         drwav_get_bytes_per_pcm_frame [3]
+                0.00    0.00      55/84          drwav__on_read_stdio [5]
 -----------------------------------------------
-                0.00    0.00      70/70          drwav__pcm_to_f32 [6]
-[10]     0.0    0.00    0.00      70         drwav_s16_to_f32 [10]
+                0.00    0.00      33/33          drwav__pcm_to_f32 [6]
+[10]     0.0    0.00    0.00      33         drwav_s24_to_f32 [10]
 -----------------------------------------------
-                0.00    0.00      22/22          drwav_init__internal [32]
-[11]     0.0    0.00    0.00      22         drwav_fourcc_equal [11]
+                0.00    0.00      28/28          drwav_init__internal [33]
+[11]     0.0    0.00    0.00      28         drwav_fourcc_equal [11]
 -----------------------------------------------
-                0.00    0.00       1/16          drwav_write_raw [50]
-                0.00    0.00      15/16          drwav__write [13]
-[12]     0.0    0.00    0.00      16         drwav__on_write_stdio [12]
+                0.00    0.00      22/22          drwav__pcm_to_f32 [6]
+[12]     0.0    0.00    0.00      22         drwav_s16_to_f32 [12]
 -----------------------------------------------
-                0.00    0.00       4/15          drwav__write_u16ne_to_le [21]
-                0.00    0.00       4/15          drwav_init_write__internal [46]
-                0.00    0.00       7/15          drwav__write_u32ne_to_le [17]
-[13]     0.0    0.00    0.00      15         drwav__write [13]
-                0.00    0.00      15/16          drwav__on_write_stdio [12]
+                0.00    0.00       1/16          drwav_write_raw [51]
+                0.00    0.00      15/16          drwav__write [15]
+[13]     0.0    0.00    0.00      16         drwav__on_write_stdio [13]
 -----------------------------------------------
-                0.00    0.00       2/13          drwav_uninit [25]
-                0.00    0.00       3/13          drwav_init__internal [32]
-                0.00    0.00       4/13          drwav__seek_forward [19]
-                0.00    0.00       4/13          drwav__seek_from_start [20]
-[14]     0.0    0.00    0.00      13         drwav__on_seek_stdio [14]
+                0.00    0.00       2/15          drwav_uninit [26]
+                0.00    0.00       3/15          drwav_init__internal [33]
+                0.00    0.00       4/15          drwav__seek_from_start [21]
+                0.00    0.00       6/15          drwav__seek_forward [20]
+[14]     0.0    0.00    0.00      15         drwav__on_seek_stdio [14]
 -----------------------------------------------
-                0.00    0.00       1/10          drwav__riff_chunk_size_riff [41]
-                0.00    0.00       1/10          drwav_uninit [25]
-                0.00    0.00       8/10          drwav__read_chunk_header [16]
-[15]     0.0    0.00    0.00      10         drwav__chunk_padding_size_riff [15]
+                0.00    0.00       4/15          drwav__write_u16ne_to_le [22]
+                0.00    0.00       4/15          drwav_init_write__internal [47]
+                0.00    0.00       7/15          drwav__write_u32ne_to_le [18]
+[15]     0.0    0.00    0.00      15         drwav__write [15]
+                0.00    0.00      15/16          drwav__on_write_stdio [13]
 -----------------------------------------------
-                0.00    0.00       8/8           drwav_init__internal [32]
-[16]     0.0    0.00    0.00       8         drwav__read_chunk_header [16]
-                0.00    0.00      16/95          drwav__on_read_stdio [5]
-                0.00    0.00       8/10          drwav__chunk_padding_size_riff [15]
+                0.00    0.00       1/12          drwav__riff_chunk_size_riff [42]
+                0.00    0.00       1/12          drwav_uninit [26]
+                0.00    0.00      10/12          drwav__read_chunk_header [17]
+[16]     0.0    0.00    0.00      12         drwav__chunk_padding_size_riff [16]
 -----------------------------------------------
-                0.00    0.00       2/7           drwav_uninit [25]
-                0.00    0.00       5/7           drwav_init_write__internal [46]
-[17]     0.0    0.00    0.00       7         drwav__write_u32ne_to_le [17]
-                0.00    0.00       7/15          drwav__write [13]
+                0.00    0.00      10/10          drwav_init__internal [33]
+[17]     0.0    0.00    0.00      10         drwav__read_chunk_header [17]
+                0.00    0.00      20/84          drwav__on_read_stdio [5]
+                0.00    0.00      10/12          drwav__chunk_padding_size_riff [16]
 -----------------------------------------------
-                0.00    0.00       6/6           drwav_init__internal [32]
-[18]     0.0    0.00    0.00       6         drwav__on_read [18]
-                0.00    0.00       6/95          drwav__on_read_stdio [5]
+                0.00    0.00       2/7           drwav_uninit [26]
+                0.00    0.00       5/7           drwav_init_write__internal [47]
+[18]     0.0    0.00    0.00       7         drwav__write_u32ne_to_le [18]
+                0.00    0.00       7/15          drwav__write [15]
 -----------------------------------------------
-                0.00    0.00       4/4           drwav_init__internal [32]
-[19]     0.0    0.00    0.00       4         drwav__seek_forward [19]
-                0.00    0.00       4/13          drwav__on_seek_stdio [14]
+                0.00    0.00       6/6           drwav_init__internal [33]
+[19]     0.0    0.00    0.00       6         drwav__on_read [19]
+                0.00    0.00       6/84          drwav__on_read_stdio [5]
 -----------------------------------------------
-                0.00    0.00       4/4           drwav_init__internal [32]
-[20]     0.0    0.00    0.00       4         drwav__seek_from_start [20]
-                0.00    0.00       4/13          drwav__on_seek_stdio [14]
+                0.00    0.00       6/6           drwav_init__internal [33]
+[20]     0.0    0.00    0.00       6         drwav__seek_forward [20]
+                0.00    0.00       6/15          drwav__on_seek_stdio [14]
 -----------------------------------------------
-                0.00    0.00       4/4           drwav_init_write__internal [46]
-[21]     0.0    0.00    0.00       4         drwav__write_u16ne_to_le [21]
-                0.00    0.00       4/15          drwav__write [13]
+                0.00    0.00       4/4           drwav_init__internal [33]
+[21]     0.0    0.00    0.00       4         drwav__seek_from_start [21]
+                0.00    0.00       4/15          drwav__on_seek_stdio [14]
 -----------------------------------------------
-                0.00    0.00       2/4           drwav_uninit [25]
+                0.00    0.00       4/4           drwav_init_write__internal [47]
+[22]     0.0    0.00    0.00       4         drwav__write_u16ne_to_le [22]
+                0.00    0.00       4/15          drwav__write [15]
+-----------------------------------------------
+                0.00    0.00       2/4           drwav_uninit [26]
                 0.00    0.00       2/4           main [2]
-[22]     0.0    0.00    0.00       4         drwav_free [22]
-                0.00    0.00       2/2           drwav__free_from_callbacks [27]
-                0.00    0.00       2/2           drwav__free_default [26]
+[23]     0.0    0.00    0.00       4         drwav_free [23]
+                0.00    0.00       2/2           drwav__free_from_callbacks [28]
+                0.00    0.00       2/2           drwav__free_default [27]
 -----------------------------------------------
-                0.00    0.00       1/3           drwav_preinit_write [47]
-                0.00    0.00       2/3           drwav_preinit [37]
-[23]     0.0    0.00    0.00       3         drwav_copy_allocation_callbacks_or_defaults [23]
+                0.00    0.00       1/3           drwav_preinit_write [48]
+                0.00    0.00       2/3           drwav_preinit [38]
+[24]     0.0    0.00    0.00       3         drwav_copy_allocation_callbacks_or_defaults [24]
 -----------------------------------------------
-                0.00    0.00       1/3           drwav_init_file_write__internal [44]
-                0.00    0.00       2/3           drwav_init_file_ex [35]
-[24]     0.0    0.00    0.00       3         drwav_fopen [24]
+                0.00    0.00       1/3           drwav_init_file_write__internal [45]
+                0.00    0.00       2/3           drwav_init_file_ex [36]
+[25]     0.0    0.00    0.00       3         drwav_fopen [25]
 -----------------------------------------------
                 0.00    0.00       1/3           main [2]
-                0.00    0.00       2/3           drwav__read_pcm_frames_and_close_f32 [31]
-[25]     0.0    0.00    0.00       3         drwav_uninit [25]
-                0.00    0.00       2/13          drwav__on_seek_stdio [14]
-                0.00    0.00       2/7           drwav__write_u32ne_to_le [17]
-                0.00    0.00       2/4           drwav_free [22]
-                0.00    0.00       1/10          drwav__chunk_padding_size_riff [15]
-                0.00    0.00       1/1           drwav__riff_chunk_size_riff [41]
-                0.00    0.00       1/1           drwav__data_chunk_size_riff [40]
+                0.00    0.00       2/3           drwav__read_pcm_frames_and_close_f32 [32]
+[26]     0.0    0.00    0.00       3         drwav_uninit [26]
+                0.00    0.00       2/15          drwav__on_seek_stdio [14]
+                0.00    0.00       2/7           drwav__write_u32ne_to_le [18]
+                0.00    0.00       2/4           drwav_free [23]
+                0.00    0.00       1/12          drwav__chunk_padding_size_riff [16]
+                0.00    0.00       1/1           drwav__riff_chunk_size_riff [42]
+                0.00    0.00       1/1           drwav__data_chunk_size_riff [41]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_free [22]
-[26]     0.0    0.00    0.00       2         drwav__free_default [26]
+                0.00    0.00       2/2           drwav_free [23]
+[27]     0.0    0.00    0.00       2         drwav__free_default [27]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_free [22]
-[27]     0.0    0.00    0.00       2         drwav__free_from_callbacks [27]
+                0.00    0.00       2/2           drwav_free [23]
+[28]     0.0    0.00    0.00       2         drwav__free_from_callbacks [28]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav__malloc_from_callbacks [29]
-[28]     0.0    0.00    0.00       2         drwav__malloc_default [28]
+                0.00    0.00       2/2           drwav__malloc_from_callbacks [30]
+[29]     0.0    0.00    0.00       2         drwav__malloc_default [29]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav__read_pcm_frames_and_close_f32 [31]
-[29]     0.0    0.00    0.00       2         drwav__malloc_from_callbacks [29]
-                0.00    0.00       2/2           drwav__malloc_default [28]
+                0.00    0.00       2/2           drwav__read_pcm_frames_and_close_f32 [32]
+[30]     0.0    0.00    0.00       2         drwav__malloc_from_callbacks [30]
+                0.00    0.00       2/2           drwav__malloc_default [29]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_init__internal [32]
-[30]     0.0    0.00    0.00       2         drwav__on_tell_stdio [30]
+                0.00    0.00       2/2           drwav_init__internal [33]
+[31]     0.0    0.00    0.00       2         drwav__on_tell_stdio [31]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_open_file_and_read_pcm_frames_f32 [36]
-[31]     0.0    0.00    0.00       2         drwav__read_pcm_frames_and_close_f32 [31]
-                0.00    0.00       2/2           drwav__malloc_from_callbacks [29]
-                0.00    0.00       2/2           drwav_read_pcm_frames_f32 [38]
-                0.00    0.00       2/3           drwav_uninit [25]
+                0.00    0.00       2/2           drwav_open_file_and_read_pcm_frames_f32 [37]
+[32]     0.0    0.00    0.00       2         drwav__read_pcm_frames_and_close_f32 [32]
+                0.00    0.00       2/2           drwav__malloc_from_callbacks [30]
+                0.00    0.00       2/2           drwav_read_pcm_frames_f32 [39]
+                0.00    0.00       2/3           drwav_uninit [26]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_init_file__internal_FILE [34]
-[32]     0.0    0.00    0.00       2         drwav_init__internal [32]
-                0.00    0.00      22/22          drwav_fourcc_equal [11]
-                0.00    0.00       8/8           drwav__read_chunk_header [16]
-                0.00    0.00       6/6           drwav__on_read [18]
-                0.00    0.00       6/148         drwav_get_bytes_per_pcm_frame [3]
-                0.00    0.00       4/4           drwav__seek_forward [19]
-                0.00    0.00       4/4           drwav__seek_from_start [20]
-                0.00    0.00       3/95          drwav__on_read_stdio [5]
-                0.00    0.00       3/13          drwav__on_seek_stdio [14]
-                0.00    0.00       2/2           drwav__on_tell_stdio [30]
+                0.00    0.00       2/2           drwav_init_file__internal_FILE [35]
+[33]     0.0    0.00    0.00       2         drwav_init__internal [33]
+                0.00    0.00      28/28          drwav_fourcc_equal [11]
+                0.00    0.00      10/10          drwav__read_chunk_header [17]
+                0.00    0.00       6/6           drwav__on_read [19]
+                0.00    0.00       6/6           drwav__seek_forward [20]
+                0.00    0.00       6/118         drwav_get_bytes_per_pcm_frame [3]
+                0.00    0.00       4/4           drwav__seek_from_start [21]
+                0.00    0.00       3/84          drwav__on_read_stdio [5]
+                0.00    0.00       3/15          drwav__on_seek_stdio [14]
+                0.00    0.00       2/2           drwav__on_tell_stdio [31]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_open_file_and_read_pcm_frames_f32 [36]
-[33]     0.0    0.00    0.00       2         drwav_init_file [33]
-                0.00    0.00       2/2           drwav_init_file_ex [35]
+                0.00    0.00       2/2           drwav_open_file_and_read_pcm_frames_f32 [37]
+[34]     0.0    0.00    0.00       2         drwav_init_file [34]
+                0.00    0.00       2/2           drwav_init_file_ex [36]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_init_file_ex [35]
-[34]     0.0    0.00    0.00       2         drwav_init_file__internal_FILE [34]
-                0.00    0.00       2/2           drwav_preinit [37]
-                0.00    0.00       2/2           drwav_init__internal [32]
+                0.00    0.00       2/2           drwav_init_file_ex [36]
+[35]     0.0    0.00    0.00       2         drwav_init_file__internal_FILE [35]
+                0.00    0.00       2/2           drwav_preinit [38]
+                0.00    0.00       2/2           drwav_init__internal [33]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_init_file [33]
-[35]     0.0    0.00    0.00       2         drwav_init_file_ex [35]
-                0.00    0.00       2/3           drwav_fopen [24]
-                0.00    0.00       2/2           drwav_init_file__internal_FILE [34]
+                0.00    0.00       2/2           drwav_init_file [34]
+[36]     0.0    0.00    0.00       2         drwav_init_file_ex [36]
+                0.00    0.00       2/3           drwav_fopen [25]
+                0.00    0.00       2/2           drwav_init_file__internal_FILE [35]
 -----------------------------------------------
                 0.00    0.00       2/2           main [2]
-[36]     0.0    0.00    0.00       2         drwav_open_file_and_read_pcm_frames_f32 [36]
-                0.00    0.00       2/2           drwav_init_file [33]
-                0.00    0.00       2/2           drwav__read_pcm_frames_and_close_f32 [31]
+[37]     0.0    0.00    0.00       2         drwav_open_file_and_read_pcm_frames_f32 [37]
+                0.00    0.00       2/2           drwav_init_file [34]
+                0.00    0.00       2/2           drwav__read_pcm_frames_and_close_f32 [32]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_init_file__internal_FILE [34]
-[37]     0.0    0.00    0.00       2         drwav_preinit [37]
-                0.00    0.00       2/3           drwav_copy_allocation_callbacks_or_defaults [23]
+                0.00    0.00       2/2           drwav_init_file__internal_FILE [35]
+[38]     0.0    0.00    0.00       2         drwav_preinit [38]
+                0.00    0.00       2/3           drwav_copy_allocation_callbacks_or_defaults [24]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav__read_pcm_frames_and_close_f32 [31]
-[38]     0.0    0.00    0.00       2         drwav_read_pcm_frames_f32 [38]
-                0.00    0.00       2/2           drwav_read_pcm_frames_f32__pcm [39]
+                0.00    0.00       2/2           drwav__read_pcm_frames_and_close_f32 [32]
+[39]     0.0    0.00    0.00       2         drwav_read_pcm_frames_f32 [39]
+                0.00    0.00       2/2           drwav_read_pcm_frames_f32__pcm [40]
 -----------------------------------------------
-                0.00    0.00       2/2           drwav_read_pcm_frames_f32 [38]
-[39]     0.0    0.00    0.00       2         drwav_read_pcm_frames_f32__pcm [39]
-                0.00    0.00      70/70          drwav_read_pcm_frames [7]
-                0.00    0.00      70/70          drwav__pcm_to_f32 [6]
-                0.00    0.00       2/148         drwav_get_bytes_per_pcm_frame [3]
+                0.00    0.00       2/2           drwav_read_pcm_frames_f32 [39]
+[40]     0.0    0.00    0.00       2         drwav_read_pcm_frames_f32__pcm [40]
+                0.00    0.00      55/55          drwav_read_pcm_frames [7]
+                0.00    0.00      55/55          drwav__pcm_to_f32 [6]
+                0.00    0.00       2/118         drwav_get_bytes_per_pcm_frame [3]
 -----------------------------------------------
-                0.00    0.00       1/1           drwav_uninit [25]
-[40]     0.0    0.00    0.00       1         drwav__data_chunk_size_riff [40]
+                0.00    0.00       1/1           drwav_uninit [26]
+[41]     0.0    0.00    0.00       1         drwav__data_chunk_size_riff [41]
 -----------------------------------------------
-                0.00    0.00       1/1           drwav_uninit [25]
-[41]     0.0    0.00    0.00       1         drwav__riff_chunk_size_riff [41]
-                0.00    0.00       1/1           drwav__write_or_count_metadata [42]
-                0.00    0.00       1/10          drwav__chunk_padding_size_riff [15]
+                0.00    0.00       1/1           drwav_uninit [26]
+[42]     0.0    0.00    0.00       1         drwav__riff_chunk_size_riff [42]
+                0.00    0.00       1/1           drwav__write_or_count_metadata [43]
+                0.00    0.00       1/12          drwav__chunk_padding_size_riff [16]
 -----------------------------------------------
-                0.00    0.00       1/1           drwav__riff_chunk_size_riff [41]
-[42]     0.0    0.00    0.00       1         drwav__write_or_count_metadata [42]
------------------------------------------------
-                0.00    0.00       1/1           main [2]
-[43]     0.0    0.00    0.00       1         drwav_init_file_write [43]
-                0.00    0.00       1/1           drwav_init_file_write__internal [44]
------------------------------------------------
-                0.00    0.00       1/1           drwav_init_file_write [43]
-[44]     0.0    0.00    0.00       1         drwav_init_file_write__internal [44]
-                0.00    0.00       1/3           drwav_fopen [24]
-                0.00    0.00       1/1           drwav_init_file_write__internal_FILE [45]
------------------------------------------------
-                0.00    0.00       1/1           drwav_init_file_write__internal [44]
-[45]     0.0    0.00    0.00       1         drwav_init_file_write__internal_FILE [45]
-                0.00    0.00       1/1           drwav_preinit_write [47]
-                0.00    0.00       1/1           drwav_init_write__internal [46]
------------------------------------------------
-                0.00    0.00       1/1           drwav_init_file_write__internal_FILE [45]
-[46]     0.0    0.00    0.00       1         drwav_init_write__internal [46]
-                0.00    0.00       5/7           drwav__write_u32ne_to_le [17]
-                0.00    0.00       4/15          drwav__write [13]
-                0.00    0.00       4/4           drwav__write_u16ne_to_le [21]
------------------------------------------------
-                0.00    0.00       1/1           drwav_init_file_write__internal_FILE [45]
-[47]     0.0    0.00    0.00       1         drwav_preinit_write [47]
-                0.00    0.00       1/3           drwav_copy_allocation_callbacks_or_defaults [23]
+                0.00    0.00       1/1           drwav__riff_chunk_size_riff [42]
+[43]     0.0    0.00    0.00       1         drwav__write_or_count_metadata [43]
 -----------------------------------------------
                 0.00    0.00       1/1           main [2]
-[48]     0.0    0.00    0.00       1         drwav_write_pcm_frames [48]
-                0.00    0.00       1/1           drwav_write_pcm_frames_le [49]
+[44]     0.0    0.00    0.00       1         drwav_init_file_write [44]
+                0.00    0.00       1/1           drwav_init_file_write__internal [45]
 -----------------------------------------------
-                0.00    0.00       1/1           drwav_write_pcm_frames [48]
-[49]     0.0    0.00    0.00       1         drwav_write_pcm_frames_le [49]
-                0.00    0.00       1/1           drwav_write_raw [50]
+                0.00    0.00       1/1           drwav_init_file_write [44]
+[45]     0.0    0.00    0.00       1         drwav_init_file_write__internal [45]
+                0.00    0.00       1/3           drwav_fopen [25]
+                0.00    0.00       1/1           drwav_init_file_write__internal_FILE [46]
 -----------------------------------------------
-                0.00    0.00       1/1           drwav_write_pcm_frames_le [49]
-[50]     0.0    0.00    0.00       1         drwav_write_raw [50]
-                0.00    0.00       1/16          drwav__on_write_stdio [12]
+                0.00    0.00       1/1           drwav_init_file_write__internal [45]
+[46]     0.0    0.00    0.00       1         drwav_init_file_write__internal_FILE [46]
+                0.00    0.00       1/1           drwav_preinit_write [48]
+                0.00    0.00       1/1           drwav_init_write__internal [47]
+-----------------------------------------------
+                0.00    0.00       1/1           drwav_init_file_write__internal_FILE [46]
+[47]     0.0    0.00    0.00       1         drwav_init_write__internal [47]
+                0.00    0.00       5/7           drwav__write_u32ne_to_le [18]
+                0.00    0.00       4/15          drwav__write [15]
+                0.00    0.00       4/4           drwav__write_u16ne_to_le [22]
+-----------------------------------------------
+                0.00    0.00       1/1           drwav_init_file_write__internal_FILE [46]
+[48]     0.0    0.00    0.00       1         drwav_preinit_write [48]
+                0.00    0.00       1/3           drwav_copy_allocation_callbacks_or_defaults [24]
+-----------------------------------------------
+                0.00    0.00       1/1           main [2]
+[49]     0.0    0.00    0.00       1         drwav_write_pcm_frames [49]
+                0.00    0.00       1/1           drwav_write_pcm_frames_le [50]
+-----------------------------------------------
+                0.00    0.00       1/1           drwav_write_pcm_frames [49]
+[50]     0.0    0.00    0.00       1         drwav_write_pcm_frames_le [50]
+                0.00    0.00       1/1           drwav_write_raw [51]
+-----------------------------------------------
+                0.00    0.00       1/1           drwav_write_pcm_frames_le [50]
+[51]     0.0    0.00    0.00       1         drwav_write_raw [51]
+                0.00    0.00       1/16          drwav__on_write_stdio [13]
 -----------------------------------------------
 
  This table describes the call tree of the program, and was sorted by
@@ -420,20 +425,20 @@ notice and this notice are preserved.
 
 Index by function name
 
-   [1] convolve_naive         [20] drwav__seek_from_start [46] drwav_init_write__internal
-  [15] drwav__chunk_padding_size_riff [13] drwav__write   [36] drwav_open_file_and_read_pcm_frames_f32
-  [40] drwav__data_chunk_size_riff [42] drwav__write_or_count_metadata [37] drwav_preinit
-  [26] drwav__free_default    [21] drwav__write_u16ne_to_le [47] drwav_preinit_write
-  [27] drwav__free_from_callbacks [17] drwav__write_u32ne_to_le [7] drwav_read_pcm_frames
-  [28] drwav__malloc_default  [23] drwav_copy_allocation_callbacks_or_defaults [38] drwav_read_pcm_frames_f32
-  [29] drwav__malloc_from_callbacks [24] drwav_fopen      [39] drwav_read_pcm_frames_f32__pcm
-  [18] drwav__on_read         [11] drwav_fourcc_equal      [8] drwav_read_pcm_frames_le
-   [5] drwav__on_read_stdio   [22] drwav_free              [9] drwav_read_raw
-  [14] drwav__on_seek_stdio    [3] drwav_get_bytes_per_pcm_frame [10] drwav_s16_to_f32
-  [30] drwav__on_tell_stdio   [32] drwav_init__internal   [25] drwav_uninit
-  [12] drwav__on_write_stdio  [33] drwav_init_file        [48] drwav_write_pcm_frames
-   [6] drwav__pcm_to_f32      [34] drwav_init_file__internal_FILE [49] drwav_write_pcm_frames_le
-  [16] drwav__read_chunk_header [35] drwav_init_file_ex   [50] drwav_write_raw
-  [31] drwav__read_pcm_frames_and_close_f32 [43] drwav_init_file_write [4] update_progress_bar
-  [41] drwav__riff_chunk_size_riff [44] drwav_init_file_write__internal
-  [19] drwav__seek_forward    [45] drwav_init_file_write__internal_FILE
+   [1] convolve_naive         [21] drwav__seek_from_start [47] drwav_init_write__internal
+  [16] drwav__chunk_padding_size_riff [15] drwav__write   [37] drwav_open_file_and_read_pcm_frames_f32
+  [41] drwav__data_chunk_size_riff [43] drwav__write_or_count_metadata [38] drwav_preinit
+  [27] drwav__free_default    [22] drwav__write_u16ne_to_le [48] drwav_preinit_write
+  [28] drwav__free_from_callbacks [18] drwav__write_u32ne_to_le [7] drwav_read_pcm_frames
+  [29] drwav__malloc_default  [24] drwav_copy_allocation_callbacks_or_defaults [39] drwav_read_pcm_frames_f32
+  [30] drwav__malloc_from_callbacks [25] drwav_fopen      [40] drwav_read_pcm_frames_f32__pcm
+  [19] drwav__on_read         [11] drwav_fourcc_equal      [8] drwav_read_pcm_frames_le
+   [5] drwav__on_read_stdio   [23] drwav_free              [9] drwav_read_raw
+  [14] drwav__on_seek_stdio    [3] drwav_get_bytes_per_pcm_frame [12] drwav_s16_to_f32
+  [31] drwav__on_tell_stdio   [33] drwav_init__internal   [10] drwav_s24_to_f32
+  [13] drwav__on_write_stdio  [34] drwav_init_file        [26] drwav_uninit
+   [6] drwav__pcm_to_f32      [35] drwav_init_file__internal_FILE [49] drwav_write_pcm_frames
+  [17] drwav__read_chunk_header [36] drwav_init_file_ex   [50] drwav_write_pcm_frames_le
+  [32] drwav__read_pcm_frames_and_close_f32 [44] drwav_init_file_write [51] drwav_write_raw
+  [42] drwav__riff_chunk_size_riff [45] drwav_init_file_write__internal [4] update_progress_bar
+  [20] drwav__seek_forward    [46] drwav_init_file_write__internal_FILE

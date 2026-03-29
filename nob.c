@@ -2,7 +2,7 @@
 #define NOB_IMPLEMENTATION
 #define NOB_WARN_DEPRECATED
 #define NOB_STRIP_PREFIX
-#include <nob.h>
+#include "nob.h"
 
 #define BUILD_FOLDER "build/"
 #define SRC_FOLDER ""
@@ -13,14 +13,23 @@ int main(int argc, char **argv) {
     if (!mkdir_if_not_exists(BUILD_FOLDER)) return 1;
 
     Cmd cmd = {0};
+
+#if defined(PROFILE)
+    cmd_append(&cmd, "clang-cl", "/Zi", "/Oy-");
+    cmd_append(&cmd, "/I" INCLUDE_FOLDER);
+    cmd_append(&cmd, "/openmp");
+#else
     cc(&cmd);
     cc_flags(&cmd);
-#ifndef _MSC_VER
-    cmd_append(&cmd, "-O3");
-    cmd_append(&cmd, "-I" INCLUDE_FOLDER);
-#else
-    cmd_append(&cmd, "/O3");
-    cmd_append(&cmd, "/I" INCLUDE_FOLDER);
+    #ifndef _MSC_VER
+		cmd_append(&cmd, "-O3");
+		cmd_append(&cmd, "-I" INCLUDE_FOLDER);
+		cmd_append(&cmd, "-fopenmp");
+    #else
+		cmd_append(&cmd, "/O3");
+		cmd_append(&cmd, "/I" INCLUDE_FOLDER);
+		cmd_append(&cmd, "/openmp");
+    #endif
 #endif
 
     Cmd targets = {0};
