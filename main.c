@@ -6,6 +6,7 @@ https://www.dspguide.com/ch18/2.htm
 https://github.com/Lorenzo287/convolution
 */
 
+#include <immintrin.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,7 @@ https://github.com/Lorenzo287/convolution
 typedef enum {
     MODE_NAIVE,
     MODE_PARALLEL,
+    MODE_SIMD,
 } ConvMode;
 
 typedef struct {
@@ -112,6 +114,115 @@ void convolve_parallel(const float *pInput, size_t inputSize, const float *pKern
     }
 }
 
+static inline float hsum256_ps(__m256 v) {
+    __m128 lo = _mm256_castps256_ps128(v);
+    __m128 hi = _mm256_extractf128_ps(v, 1);
+    lo = _mm_add_ps(lo, hi);
+    lo = _mm_hadd_ps(lo, lo);
+    lo = _mm_hadd_ps(lo, lo);
+    return _mm_cvtss_f32(lo);
+}
+
+void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
+                   size_t kernelSize, float *pOutput, unsigned int inputChannels,
+                   unsigned int kernelChannels) {
+    size_t outputSize = inputSize + kernelSize - 1;
+    size_t paddedInputSize = inputSize + kernelSize + 8;
+
+    float *pInputL = calloc(paddedInputSize, sizeof(float));
+    if (!pInputL) {
+        fprintf(stderr, "Error: Out of memory (pInputL)\n");
+        goto defer;
+    }
+
+    float *pInputR = NULL;
+    if (inputChannels == 2) {
+        pInputR = calloc(paddedInputSize, sizeof(float));
+        if (!pInputR) {
+            fprintf(stderr, "Error: Out of memory (pInputR)\n");
+            goto defer_inputL;
+        }
+    }
+
+    float *pKernelL = calloc(kernelSize + 8, sizeof(float));
+    if (!pKernelL) {
+        fprintf(stderr, "Error: Out of memory (pKernelL)\n");
+        goto defer_inputR;
+    }
+
+    float *pKernelR = NULL;
+    if (inputChannels == 2) {
+        pKernelR = calloc(kernelSize + 8, sizeof(float));
+        if (!pKernelR) {
+            fprintf(stderr, "Error: Out of memory (pKernelR)\n");
+            goto defer_kernelL;
+        }
+    }
+
+    for (size_t i = 0; i < inputSize; i++) {
+        pInputL[i + kernelSize - 1] = pInput[i * inputChannels + 0];
+        if (inputChannels == 2)
+            pInputR[i + kernelSize - 1] = pInput[i * inputChannels + 1];
+    }
+
+    for (size_t i = 0; i < kernelSize; i++) {
+        pKernelL[i] = pKernel[(kernelSize - 1 - i) * kernelChannels + 0];
+        if (kernelChannels == 2)
+            pKernelR[i] = pKernel[(kernelSize - 1 - i) * kernelChannels + 1];
+        else if (inputChannels == 2)
+            pKernelR[i] = pKernelL[i];
+    }
+
+    if (inputChannels == 2) {
+#pragma omp parallel for schedule(static)
+        for (size_t n = 0; n < outputSize; n++) {
+            __m256 sumL_vec = _mm256_setzero_ps();
+            __m256 sumR_vec = _mm256_setzero_ps();
+            const float *inL = &pInputL[n];
+            const float *inR = &pInputR[n];
+            size_t k = 0;
+            for (; k + 7 < kernelSize; k += 8) {
+                sumL_vec = _mm256_fmadd_ps(_mm256_loadu_ps(&inL[k]),
+                                           _mm256_loadu_ps(&pKernelL[k]), sumL_vec);
+                sumR_vec = _mm256_fmadd_ps(_mm256_loadu_ps(&inR[k]),
+                                           _mm256_loadu_ps(&pKernelR[k]), sumR_vec);
+            }
+            float sumL = hsum256_ps(sumL_vec);
+            float sumR = hsum256_ps(sumR_vec);
+            for (; k < kernelSize; k++) {
+                sumL += inL[k] * pKernelL[k];
+                sumR += inR[k] * pKernelR[k];
+            }
+            pOutput[n * 2 + 0] = sumL;
+            pOutput[n * 2 + 1] = sumR;
+        }
+    } else {
+#pragma omp parallel for schedule(static)
+        for (size_t n = 0; n < outputSize; n++) {
+            __m256 sumL_vec = _mm256_setzero_ps();
+            const float *inL = &pInputL[n];
+            size_t k = 0;
+            for (; k + 7 < kernelSize; k += 8) {
+                sumL_vec = _mm256_fmadd_ps(_mm256_loadu_ps(&inL[k]),
+                                           _mm256_loadu_ps(&pKernelL[k]), sumL_vec);
+            }
+            float sumL = hsum256_ps(sumL_vec);
+            for (; k < kernelSize; k++) sumL += inL[k] * pKernelL[k];
+            pOutput[n] = sumL;
+        }
+    }
+
+    free(pKernelR);
+defer_kernelL:
+    free(pKernelL);
+defer_inputR:
+    free(pInputR);
+defer_inputL:
+    free(pInputL);
+defer:
+    return;
+}
+
 int main(int argc, char **argv) {
     int ret = 0;
     Config config = {0};
@@ -181,6 +292,9 @@ int main(int argc, char **argv) {
     case MODE_PARALLEL:
         modeStr = "Parallel (OpenMP)";
         break;
+    case MODE_SIMD:
+        modeStr = "SIMD (AVX2)";
+        break;
     }
     printf("Mode: %s\n", modeStr);
     printf("Processing: (%zu samples, %u channels) * (%zu samples, %u channels)\n",
@@ -191,6 +305,10 @@ int main(int argc, char **argv) {
     case MODE_PARALLEL:
         convolve_parallel(pInputSamples, N, pImpulseSamples, M, pOutputSamples,
                           inputChannels, impulseChannels);
+        break;
+    case MODE_SIMD:
+        convolve_simd(pInputSamples, N, pImpulseSamples, M, pOutputSamples,
+                      inputChannels, impulseChannels);
         break;
     case MODE_NAIVE:
     default:
@@ -258,10 +376,10 @@ void update_progress_bar(size_t current, size_t total) {
 }
 
 void print_usage(const char *progName) {
-    fprintf(
-        stderr,
-        "Usage: %s <input.wav> <impulse.wav> <output.wav> [-m <naive|parallel>]\n",
-        progName);
+    fprintf(stderr,
+            "Usage: %s <input.wav> <impulse.wav> <output.wav> [-m "
+            "<naive|parallel|simd>]\n",
+            progName);
 }
 
 int parse_args(int argc, char **argv, Config *config) {
@@ -280,6 +398,8 @@ int parse_args(int argc, char **argv, Config *config) {
                 config->mode = MODE_NAIVE;
             } else if (strcmp(argv[i], "parallel") == 0) {
                 config->mode = MODE_PARALLEL;
+            } else if (strcmp(argv[i], "simd") == 0) {
+                config->mode = MODE_SIMD;
             } else {
                 fprintf(stderr, "Error: Unknown mode '%s'\n", argv[i]);
                 return 0;

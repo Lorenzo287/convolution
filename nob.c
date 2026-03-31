@@ -25,10 +25,13 @@ int main(int argc, char **argv) {
 		cmd_append(&cmd, "-O3");
 		cmd_append(&cmd, "-I" INCLUDE_FOLDER);
 		cmd_append(&cmd, "-fopenmp");
+		cmd_append(&cmd, "-mavx2");
+		cmd_append(&cmd, "-mfma");
     #else
 		cmd_append(&cmd, "/O3");
 		cmd_append(&cmd, "/I" INCLUDE_FOLDER);
 		cmd_append(&cmd, "/openmp");
+		cmd_append(&cmd, "/arch:AVX2");
     #endif
 #endif
 

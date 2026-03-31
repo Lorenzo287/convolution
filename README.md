@@ -9,7 +9,7 @@ This project implements a simple convolution engine that applies an Impulse Resp
 - **Main Technologies:** C, [dr_wav](https://github.com/mackron/dr_libs) for audio I/O, and [nob.h](https://github.com/tsoding/nob.h) for the build system.
 - **Key Features:**
     - Support for mono and stereo WAV files (interleaved).
-    - Naive and **Parallel (OpenMP)** convolution implementations.
+    - Naive, **Parallel (OpenMP)**, and **SIMD (AVX2)** convolution implementations.
     - High-resolution timing for performance benchmarking.
     - Real-time progress bar with throttled updates for the naive implementation.
     - Automatic build system using `nob.c`.
@@ -19,6 +19,7 @@ This project implements a simple convolution engine that applies an Impulse Resp
 
 Several optimization techniques have been applied to the convolution engine:
 - **Parallelization (OpenMP):** Utilizes multi-core processing to distribute the workload, achieving a ~5x speedup on typical hardware.
+- **SIMD Vectorization (AVX2 + FMA):** Uses 256-bit wide registers and Fused Multiply-Add instructions to process 8 samples at once, providing massive throughput for time-domain convolution.
 - **Interleaved Cache Locality:** Loops process all channels in a single pass. Since WAV files are interleaved (L, R, L, R...), this ensures sequential memory access, significantly reducing cache misses.
 - **Branchless Inner Loop:** Loop bounds are pre-calculated for every output sample, removing conditional checks from the critical path.
 - **Macro-based Sampling:** Uses zero-cost pre-processor macros (e.g., `X(n, c)`) for "math-like" readability of interleaved samples.
@@ -27,7 +28,6 @@ Several optimization techniques have been applied to the convolution engine:
 
 To further improve performance, the following techniques could be implemented:
 - **FFT Convolution:** Transitioning to the frequency domain using the Fast Fourier Transform (Overlap-Add/Save) to reduce complexity from $O(N \cdot M)$ to $O(N \log N)$.
-- **SIMD (Vectorization):** Using SSE/AVX intrinsics to perform multiple multiply-accumulate operations in a single clock cycle.
 
 ## Project Structure
 
@@ -60,23 +60,16 @@ The project uses a "nob" style build system.
 
 ### Running the Application
 
-The executable accepts an optional mode flag (`-m naive` or `-m parallel`).
+The executable accepts an optional mode flag (`-m naive`, `-m parallel`, or `-m simd`).
 
 ```powershell
-.\build\main.exe <input.wav> <impulse.wav> <output.wav> [-m <naive|parallel>]
+.\build\main.exe <input.wav> <impulse.wav> <output.wav> [-m <naive|parallel|simd>]
 ```
 
 Example:
 ```powershell
-.\build\main.exe test\IN_Snare_Classic.wav test\IR_DocciaAlbergo_44100.wav test\OUT_Classic_Doccia.wav -m parallel
+.\build\main.exe test\IN_Snare_Classic.wav test\IR_DocciaAlbergo_44100.wav test\OUT_Classic_Doccia.wav -m simd
 ```
-
-## Development Conventions
-
-- **Audio I/O:** Always use `dr_wav` for reading and writing audio.
-- **OpenMP:** Maintain thread-safety in new convolution functions.
-- **UI/DSP Separation:** Keep DSP functions independent of UI logic.
-- **Interleaving:** Handle interleaved channels by processing all channels simultaneously to maximize cache efficiency.
 
 ## Implementation Details
 
