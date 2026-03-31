@@ -99,17 +99,15 @@ void convolve_parallel(const float *pInput, size_t inputSize, const float *pKern
             float sumL = 0.0f;
             float sumR = 0.0f;
             for (size_t k = k_start; k <= k_end; k++) {
-                sumL += X(n - k, CH_LEFT) * H(k, CH_LEFT);
-                sumR += X(n - k, CH_RIGHT) * H(k, CH_RIGHT);
+                sumL += XL(n - k) * HL(k);
+                sumR += XR(n - k) * HR(k);
             }
-            Y(n, CH_LEFT) = sumL;
-            Y(n, CH_RIGHT) = sumR;
+            YL(n) = sumL;
+            YR(n) = sumR;
         } else {
             float sum = 0.0f;
-            for (size_t k = k_start; k <= k_end; k++) {
-                sum += X(n - k, CH_MONO) * H(k, CH_MONO);
-            }
-            Y(n, CH_MONO) = sum;
+            for (size_t k = k_start; k <= k_end; k++) { sum += XM(n - k) * HM(k); }
+            YM(n) = sum;
         }
     }
 }
