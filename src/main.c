@@ -18,11 +18,13 @@ https://github.com/Lorenzo287/convolution
 
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
+#include "pffft.h"
 
 typedef enum {
     MODE_NAIVE,
     MODE_PARALLEL,
     MODE_SIMD,
+    MODE_FFT,
 } ConvMode;
 
 typedef struct {
@@ -114,13 +116,14 @@ void convolve_parallel(const float *pInput, size_t inputSize, const float *pKern
     }
 }
 
+// collapse vector [a,b,c,d,e,f,g,h] down to a+b+c+d+e+f+g+h
 static inline float hsum256_ps(__m256 v) {
-    __m128 lo = _mm256_castps256_ps128(v);
-    __m128 hi = _mm256_extractf128_ps(v, 1);
-    lo = _mm_add_ps(lo, hi);
-    lo = _mm_hadd_ps(lo, lo);
-    lo = _mm_hadd_ps(lo, lo);
-    return _mm_cvtss_f32(lo);
+    __m128 lo = _mm256_castps256_ps128(v);    // lower 4 floats
+    __m128 hi = _mm256_extractf128_ps(v, 1);  // upper 4 floats
+    lo = _mm_add_ps(lo, hi);                  // add pairwise → 4 floats
+    lo = _mm_hadd_ps(lo, lo);                 // horizontal add → 2 floats
+    lo = _mm_hadd_ps(lo, lo);                 // horizontal add → 1 float
+    return _mm_cvtss_f32(lo);                 // extract scalar
 }
 
 void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
@@ -129,12 +132,14 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
     size_t outputSize = inputSize + kernelSize - 1;
     size_t paddedInputSize = inputSize + kernelSize + 8;
 
+    // Allocate buffers to de-interleave input and kernel,
+    // and add padding (zeros -> calloc) at the beginning and end,
+    // so that when loading 8 floats at a time it does not go out of bounds
     float *pInputL = calloc(paddedInputSize, sizeof(float));
     if (!pInputL) {
         fprintf(stderr, "Error: Out of memory (pInputL)\n");
         goto defer;
     }
-
     float *pInputR = NULL;
     if (inputChannels == 2) {
         pInputR = calloc(paddedInputSize, sizeof(float));
@@ -143,13 +148,11 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
             goto defer_inputL;
         }
     }
-
     float *pKernelL = calloc(kernelSize + 8, sizeof(float));
     if (!pKernelL) {
         fprintf(stderr, "Error: Out of memory (pKernelL)\n");
         goto defer_inputR;
     }
-
     float *pKernelR = NULL;
     if (inputChannels == 2) {
         pKernelR = calloc(kernelSize + 8, sizeof(float));
@@ -159,12 +162,13 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
         }
     }
 
+    // Copy de-interleaved input, with padding at start and end
     for (size_t i = 0; i < inputSize; i++) {
         pInputL[i + kernelSize - 1] = pInput[i * inputChannels + 0];
         if (inputChannels == 2)
             pInputR[i + kernelSize - 1] = pInput[i * inputChannels + 1];
     }
-
+    // Copy de-interleaved REVERSED kernel, so that the conv becomes a dot product
     for (size_t i = 0; i < kernelSize; i++) {
         pKernelL[i] = pKernel[(kernelSize - 1 - i) * kernelChannels + 0];
         if (kernelChannels == 2)
@@ -199,15 +203,21 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
     } else {
 #pragma omp parallel for schedule(static)
         for (size_t n = 0; n < outputSize; n++) {
-            __m256 sumL_vec = _mm256_setzero_ps();
+            __m256 sumL_vec = _mm256_setzero_ps();  // 8 lanes of 0.0f
             const float *inL = &pInputL[n];
+
             size_t k = 0;
             for (; k + 7 < kernelSize; k += 8) {
-                sumL_vec = _mm256_fmadd_ps(_mm256_loadu_ps(&inL[k]),
-                                           _mm256_loadu_ps(&pKernelL[k]), sumL_vec);
+                sumL_vec = _mm256_fmadd_ps(  // NOTE: Fused Multiply-Add
+                                             // on 265bit (8 * 32bit floats) register
+                    _mm256_loadu_ps(&inL[k]),       // load 8 input floats
+                    _mm256_loadu_ps(&pKernelL[k]),  // load 8 kernel floats
+                    sumL_vec);                      // accumulate
             }
-            float sumL = hsum256_ps(sumL_vec);
-            for (; k < kernelSize; k++) sumL += inL[k] * pKernelL[k];
+            float sumL = hsum256_ps(sumL_vec);  // collapse 8 lanes → 1 float
+
+            for (; k < kernelSize; k++)        // remainder (remaining samples
+                sumL += inL[k] * pKernelL[k];  // when kernelSize % 8 != 0)
             pOutput[n] = sumL;
         }
     }
@@ -221,6 +231,73 @@ defer_inputL:
     free(pInputL);
 defer:
     return;
+}
+
+static size_t find_next_pffft_size(size_t n) {
+    if (n < 32) return 32;
+    size_t res = 32;
+    while (res < n) res <<= 1;
+    return res;
+}
+
+void convolve_fft(const float *pInput, size_t inputSize, const float *pKernel,
+                  size_t kernelSize, float *pOutput, unsigned int inputChannels,
+                  unsigned int kernelChannels) {
+    size_t minSize = inputSize + kernelSize - 1;
+    size_t fftSize = find_next_pffft_size(minSize);
+
+    PFFFT_Setup *setup = pffft_new_setup((int)fftSize, PFFFT_REAL);
+    if (!setup) {
+        fprintf(stderr, "Error: Could not create PFFFT setup for size %zu\n", fftSize);
+        return;
+    }
+
+    float *in_buf = pffft_aligned_malloc(fftSize * sizeof(float));
+    float *krn_buf = pffft_aligned_malloc(fftSize * sizeof(float));
+    float *out_buf = pffft_aligned_malloc(fftSize * sizeof(float));
+    float *in_fft = pffft_aligned_malloc(fftSize * sizeof(float));
+    float *krn_fft = pffft_aligned_malloc(fftSize * sizeof(float));
+    float *out_fft = pffft_aligned_malloc(fftSize * sizeof(float));
+    float *work = pffft_aligned_malloc(fftSize * sizeof(float));
+
+    if (!in_buf || !krn_buf || !out_buf || !in_fft || !krn_fft || !out_fft || !work) {
+        fprintf(stderr, "Error: Out of memory for FFT buffers\n");
+        goto cleanup;
+    }
+
+    for (unsigned int ch = 0; ch < inputChannels; ch++) {
+        memset(in_buf, 0, fftSize * sizeof(float));
+        memset(krn_buf, 0, fftSize * sizeof(float));
+        memset(out_fft, 0, fftSize * sizeof(float));
+
+        for (size_t i = 0; i < inputSize; i++) in_buf[i] = pInput[i * inputChannels + ch];
+
+        unsigned int kCh = (kernelChannels == 1) ? 0 : ch;
+        for (size_t i = 0; i < kernelSize; i++)
+            krn_buf[i] = pKernel[i * kernelChannels + kCh];
+
+        pffft_transform(setup, in_buf, in_fft, work, PFFFT_FORWARD);
+        pffft_transform(setup, krn_buf, krn_fft, work, PFFFT_FORWARD);
+
+        pffft_zconvolve_accumulate(setup, in_fft, krn_fft, out_fft, 1.0f / (float)fftSize);
+
+        pffft_transform(setup, out_fft, out_buf, work, PFFFT_BACKWARD);
+
+        size_t outLen = inputSize + kernelSize - 1;
+        for (size_t i = 0; i < outLen; i++) {
+            pOutput[i * inputChannels + ch] = out_buf[i];
+        }
+    }
+
+cleanup:
+    if (in_buf) pffft_aligned_free(in_buf);
+    if (krn_buf) pffft_aligned_free(krn_buf);
+    if (out_buf) pffft_aligned_free(out_buf);
+    if (in_fft) pffft_aligned_free(in_fft);
+    if (krn_fft) pffft_aligned_free(krn_fft);
+    if (out_fft) pffft_aligned_free(out_fft);
+    if (work) pffft_aligned_free(work);
+    if (setup) pffft_destroy_setup(setup);
 }
 
 int main(int argc, char **argv) {
@@ -295,6 +372,9 @@ int main(int argc, char **argv) {
     case MODE_SIMD:
         modeStr = "SIMD (AVX2)";
         break;
+    case MODE_FFT:
+        modeStr = "FFT (PFFFT)";
+        break;
     }
     printf("Mode: %s\n", modeStr);
     printf("Processing: (%zu samples, %u channels) * (%zu samples, %u channels)\n",
@@ -309,6 +389,10 @@ int main(int argc, char **argv) {
     case MODE_SIMD:
         convolve_simd(pInputSamples, N, pImpulseSamples, M, pOutputSamples,
                       inputChannels, impulseChannels);
+        break;
+    case MODE_FFT:
+        convolve_fft(pInputSamples, N, pImpulseSamples, M, pOutputSamples,
+                     inputChannels, impulseChannels);
         break;
     case MODE_NAIVE:
     default:
@@ -378,7 +462,7 @@ void update_progress_bar(size_t current, size_t total) {
 void print_usage(const char *progName) {
     fprintf(stderr,
             "Usage: %s <input.wav> <impulse.wav> <output.wav> [-m "
-            "<naive|parallel|simd>]\n",
+            "<naive|parallel|simd|fft>]\n",
             progName);
 }
 
@@ -400,6 +484,8 @@ int parse_args(int argc, char **argv, Config *config) {
                 config->mode = MODE_PARALLEL;
             } else if (strcmp(argv[i], "simd") == 0) {
                 config->mode = MODE_SIMD;
+            } else if (strcmp(argv[i], "fft") == 0) {
+                config->mode = MODE_FFT;
             } else {
                 fprintf(stderr, "Error: Unknown mode '%s'\n", argv[i]);
                 return 0;
