@@ -4,6 +4,7 @@ build/
 *.o
 *.obj
 nob
+nob.exe.old
 
 # Python
 venv/
