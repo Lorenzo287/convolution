@@ -27,19 +27,18 @@ Several optimization techniques have been applied to the convolution engine:
 
 ## Project Structure
 
-- `src/`:
-    - `main.c`: Core logic for loading WAV files, convolution engines, and performance timing.
-    - `pffft.c`: Implementation of the PFFFT library for frequency domain operations.
+- `main.c`: Core logic for loading WAV files, convolution engines, and performance timing.
 - `include/`:
-    - `dr_wav.h`: WAV file handling library.
+    - `pffft.c`: Implementation of the PFFFT library for frequency domain operations.
     - `pffft.h`: Header for the PFFFT library.
+    - `dr_wav.h`: WAV file handling library.
     - `nob.h`: Header for the "nob" build system.
     - `stb_leakcheck.h`: Utility for detecting memory leaks.
     - `custom_main.h`: Debug wrapper for `main()`.
 - `nob.c`: Build script that handles compilation with OpenMP and AVX2 support.
-- `test/`: Contains sample input audio and impulse response files.
+- `samples/`: Contains sample input audio and impulse response files.
+- `scripts/`: Python scripts for reference implementations and testing, and additional C experiments.
 - `profiling/`: Contains profiling results and a guide on how to reproduce them.
-- `misc/`: Python scripts for reference implementations and testing.
 
 ## Building and Running
 
@@ -70,7 +69,7 @@ The executable accepts an optional mode flag (`-m naive`, `-m parallel`, `-m sim
 
 Example:
 ```powershell
-.\build\main.exe test\IN_Snare_Classic.wav test\IR_DocciaAlbergo_44100.wav test\OUT_Classic_Doccia.wav -m simd
+.\build\main.exe samples\IN_Snare_Classic.wav samples\IR_DocciaAlbergo_44100.wav samples\OUT_Classic_Doccia.wav -m simd
 ```
 
 ## Implementation Details
