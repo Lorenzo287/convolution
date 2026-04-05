@@ -20,20 +20,26 @@ This project implements a simple convolution engine that applies an Impulse Resp
 Several optimization techniques have been applied to the convolution engine:
 - **Parallelization (OpenMP):** Utilizes multi-core processing to distribute the workload, achieving a ~5x speedup on typical hardware.
 - **SIMD Vectorization (AVX2 + FMA):** Uses 256-bit wide registers and Fused Multiply-Add instructions to process 8 samples at once, providing massive throughput for time-domain convolution.
-- **FFT Acceleration (PFFFT):** Transitioning to the frequency domain using the Fast Fourier Transform to reduce computational complexity from $O(N \cdot M)$ to $O(N \log N)$, providing massive speedups for long signals.
+- **FFT Acceleration (PFFFT):** Accelerates convolution by performing it in the frequency domain. This reduces computational complexity from $O(N \cdot M)$ to $O(N \log N)$, providing massive speedups for long signals.
 - **Interleaved Cache Locality:** Loops process all channels in a single pass. Since WAV files are interleaved (L, R, L, R...), this ensures sequential memory access, significantly reducing cache misses.
 - **Branchless Inner Loop:** Loop bounds are pre-calculated for every output sample, removing conditional checks from the critical path.
 - **Macro-based Sampling:** Uses zero-cost pre-processor macros (e.g., `X(n, c)`) for "math-like" readability of interleaved samples.
 
 ## Project Structure
 
-- `main.c`: Core logic for loading WAV files, convolution engines, and performance timing.
-- `nob.c`: Build script that handles compilation with OpenMP support.
+- `src/`:
+    - `main.c`: Core logic for loading WAV files, convolution engines, and performance timing.
+    - `pffft.c`: Implementation of the PFFFT library for frequency domain operations.
 - `include/`:
     - `dr_wav.h`: WAV file handling library.
+    - `pffft.h`: Header for the PFFFT library.
+    - `nob.h`: Header for the "nob" build system.
     - `stb_leakcheck.h`: Utility for detecting memory leaks.
     - `custom_main.h`: Debug wrapper for `main()`.
+- `nob.c`: Build script that handles compilation with OpenMP and AVX2 support.
 - `test/`: Contains sample input audio and impulse response files.
+- `profiling/`: Contains profiling results and a guide on how to reproduce them.
+- `misc/`: Python scripts for reference implementations and testing.
 
 ## Building and Running
 
@@ -69,8 +75,17 @@ Example:
 
 ## Implementation Details
 
-The convolution is performed in the time domain:
+The convolution is performed either in the time domain or the frequency domain.
+
+**Time Domain:**
 
 $$ y[n] = \sum_{k=0}^{M-1} x[n-k] \cdot h[k] $$
 
 The `parallel` implementation uses `#pragma omp parallel for` to distribute the outer loop across available CPU cores, while the `naive` version includes a progress callback for real-time feedback.
+
+**Frequency Domain:**
+The `fft` mode uses the Fast Fourier Transform to convert signals into the frequency domain, where convolution becomes a simple point-wise multiplication:
+
+$$ Y[f] = X[f] \cdot H[f] $$
+
+This is followed by an Inverse FFT to obtain the output signal.

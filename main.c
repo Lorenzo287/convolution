@@ -130,7 +130,7 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
                    size_t kernelSize, float *pOutput, unsigned int inputChannels,
                    unsigned int kernelChannels) {
     size_t outputSize = inputSize + kernelSize - 1;
-    size_t paddedInputSize = inputSize + kernelSize + 8;
+    size_t paddedInputSize = inputSize + 2 * kernelSize + 8;
 
     // Allocate buffers to de-interleave input and kernel,
     // and add padding (zeros -> calloc) at the beginning and end,
@@ -248,7 +248,8 @@ void convolve_fft(const float *pInput, size_t inputSize, const float *pKernel,
 
     PFFFT_Setup *setup = pffft_new_setup((int)fftSize, PFFFT_REAL);
     if (!setup) {
-        fprintf(stderr, "Error: Could not create PFFFT setup for size %zu\n", fftSize);
+        fprintf(stderr, "Error: Could not create PFFFT setup for size %zu\n",
+                fftSize);
         return;
     }
 
@@ -260,7 +261,8 @@ void convolve_fft(const float *pInput, size_t inputSize, const float *pKernel,
     float *out_fft = pffft_aligned_malloc(fftSize * sizeof(float));
     float *work = pffft_aligned_malloc(fftSize * sizeof(float));
 
-    if (!in_buf || !krn_buf || !out_buf || !in_fft || !krn_fft || !out_fft || !work) {
+    if (!in_buf || !krn_buf || !out_buf || !in_fft || !krn_fft || !out_fft ||
+        !work) {
         fprintf(stderr, "Error: Out of memory for FFT buffers\n");
         goto cleanup;
     }
@@ -270,7 +272,8 @@ void convolve_fft(const float *pInput, size_t inputSize, const float *pKernel,
         memset(krn_buf, 0, fftSize * sizeof(float));
         memset(out_fft, 0, fftSize * sizeof(float));
 
-        for (size_t i = 0; i < inputSize; i++) in_buf[i] = pInput[i * inputChannels + ch];
+        for (size_t i = 0; i < inputSize; i++)
+            in_buf[i] = pInput[i * inputChannels + ch];
 
         unsigned int kCh = (kernelChannels == 1) ? 0 : ch;
         for (size_t i = 0; i < kernelSize; i++)
@@ -279,7 +282,8 @@ void convolve_fft(const float *pInput, size_t inputSize, const float *pKernel,
         pffft_transform(setup, in_buf, in_fft, work, PFFFT_FORWARD);
         pffft_transform(setup, krn_buf, krn_fft, work, PFFFT_FORWARD);
 
-        pffft_zconvolve_accumulate(setup, in_fft, krn_fft, out_fft, 1.0f / (float)fftSize);
+        pffft_zconvolve_accumulate(setup, in_fft, krn_fft, out_fft,
+                                   1.0f / (float)fftSize);
 
         pffft_transform(setup, out_fft, out_buf, work, PFFFT_BACKWARD);
 

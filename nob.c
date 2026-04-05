@@ -5,7 +5,7 @@
 #include "nob.h"
 
 #define BUILD_FOLDER "build/"
-#define SRC_FOLDER "src/"
+#define SRC_FOLDER ""
 #define INCLUDE_FOLDER "include/"
 
 int main(int argc, char **argv) {
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 #endif
 
     Cmd targets = {0};
-    cc_inputs(&targets, SRC_FOLDER "main.c", SRC_FOLDER "pffft.c");
+    cc_inputs(&targets, SRC_FOLDER "main.c", INCLUDE_FOLDER "pffft.c");
 
     if (!compile_commands(&cmd, &targets, BUILD_FOLDER "compile_commands.json"))
         return 1;
