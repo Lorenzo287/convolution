@@ -233,8 +233,9 @@ defer:
     return;
 }
 
+// Find next valid PFFFT size (N = 2^a * 3^b * 5^c, a >= 5)
+// For simplicity and alignment, we'll stick to powers of 2 >= 32.
 static size_t find_next_pffft_size(size_t n) {
-    if (n < 32) return 32;
     size_t res = 32;
     while (res < n) res <<= 1;
     return res;
@@ -243,53 +244,87 @@ static size_t find_next_pffft_size(size_t n) {
 void convolve_fft(const float *pInput, size_t inputSize, const float *pKernel,
                   size_t kernelSize, float *pOutput, unsigned int inputChannels,
                   unsigned int kernelChannels) {
-    size_t minSize = inputSize + kernelSize - 1;
-    size_t fftSize = find_next_pffft_size(minSize);
+    // 1. Determine the block size L for Overlap-Save.
+    // L should be a power of 2 and L > kernelSize.
+    // PFFFT works best for L <= 8192, but we can go higher if kernelSize is large.
+    size_t L = find_next_pffft_size(kernelSize * 2);
+    if (L < 512) L = 512; // Minimum reasonable FFT size for performance
 
-    PFFFT_Setup *setup = pffft_new_setup((int)fftSize, PFFFT_REAL);
+    size_t M = kernelSize;
+    size_t N_step = L - M + 1;
+    size_t outputTotal = inputSize + M - 1;
+
+    // 2. Initialize PFFFT setup.
+    PFFFT_Setup *setup = pffft_new_setup((int)L, PFFFT_REAL);
     if (!setup) {
-        fprintf(stderr, "Error: Could not create PFFFT setup for size %zu\n",
-                fftSize);
+        fprintf(stderr, "Error: Could not create PFFFT setup for size %zu\n", L);
         return;
     }
 
-    float *in_buf = pffft_aligned_malloc(fftSize * sizeof(float));
-    float *krn_buf = pffft_aligned_malloc(fftSize * sizeof(float));
-    float *out_buf = pffft_aligned_malloc(fftSize * sizeof(float));
-    float *in_fft = pffft_aligned_malloc(fftSize * sizeof(float));
-    float *krn_fft = pffft_aligned_malloc(fftSize * sizeof(float));
-    float *out_fft = pffft_aligned_malloc(fftSize * sizeof(float));
-    float *work = pffft_aligned_malloc(fftSize * sizeof(float));
+    // 3. Allocate SIMD-aligned buffers.
+    float *in_buf  = pffft_aligned_malloc(L * sizeof(float));
+    float *krn_buf = pffft_aligned_malloc(L * sizeof(float));
+    float *out_buf = pffft_aligned_malloc(L * sizeof(float));
+    float *in_fft  = pffft_aligned_malloc(L * sizeof(float));
+    float *krn_fft = pffft_aligned_malloc(L * sizeof(float));
+    float *out_fft = pffft_aligned_malloc(L * sizeof(float));
+    float *work    = pffft_aligned_malloc(L * sizeof(float));
 
-    if (!in_buf || !krn_buf || !out_buf || !in_fft || !krn_fft || !out_fft ||
-        !work) {
+    if (!in_buf || !krn_buf || !out_buf || !in_fft || !krn_fft || !out_fft || !work) {
         fprintf(stderr, "Error: Out of memory for FFT buffers\n");
         goto cleanup;
     }
 
+    // 4. Process each channel independently.
     for (unsigned int ch = 0; ch < inputChannels; ch++) {
-        memset(in_buf, 0, fftSize * sizeof(float));
-        memset(krn_buf, 0, fftSize * sizeof(float));
-        memset(out_fft, 0, fftSize * sizeof(float));
-
-        for (size_t i = 0; i < inputSize; i++)
-            in_buf[i] = pInput[i * inputChannels + ch];
-
+        // A. Pre-compute Kernel FFT for this channel.
+        memset(krn_buf, 0, L * sizeof(float));
         unsigned int kCh = (kernelChannels == 1) ? 0 : ch;
-        for (size_t i = 0; i < kernelSize; i++)
+        for (size_t i = 0; i < M; i++) {
             krn_buf[i] = pKernel[i * kernelChannels + kCh];
-
-        pffft_transform(setup, in_buf, in_fft, work, PFFFT_FORWARD);
+        }
         pffft_transform(setup, krn_buf, krn_fft, work, PFFFT_FORWARD);
 
-        pffft_zconvolve_accumulate(setup, in_fft, krn_fft, out_fft,
-                                   1.0f / (float)fftSize);
+        // B. Overlap-Save Loop.
+        // The first block's overlap (first M-1 samples) is zeros.
+        memset(in_buf, 0, L * sizeof(float));
+        
+        size_t outProcessed = 0;
+        while (outProcessed < outputTotal) {
+            // Fill the remainder of the input buffer (L - (M-1) samples).
+            // These samples come from pInput, starting from outProcessed.
+            
+            // Move previous overlap (last M-1 samples) to the start of the buffer.
+            // (For the first block, we already zeroed it).
+            // Actually, in OLS, we usually just load a window of size L.
+            // Let's use the sliding window logic:
+            memset(in_buf, 0, L * sizeof(float));
+            
+            // Start index in pInput for this block is outProcessed - (M-1).
+            for (size_t i = 0; i < L; i++) {
+                long long idx = (long long)outProcessed - (M - 1) + i;
+                if (idx >= 0 && idx < (long long)inputSize) {
+                    in_buf[i] = pInput[idx * inputChannels + ch];
+                }
+            }
 
-        pffft_transform(setup, out_fft, out_buf, work, PFFFT_BACKWARD);
+            // Forward FFT
+            pffft_transform(setup, in_buf, in_fft, work, PFFFT_FORWARD);
 
-        size_t outLen = inputSize + kernelSize - 1;
-        for (size_t i = 0; i < outLen; i++) {
-            pOutput[i * inputChannels + ch] = out_buf[i];
+            // Frequency domain multiply
+            memset(out_fft, 0, L * sizeof(float));
+            pffft_zconvolve_accumulate(setup, in_fft, krn_fft, out_fft, 1.0f / (float)L);
+
+            // Backward FFT
+            pffft_transform(setup, out_fft, out_buf, work, PFFFT_BACKWARD);
+
+            // Copy valid samples (from index M-1 to L-1) to output.
+            size_t validToCopy = (outputTotal - outProcessed < N_step) ? (outputTotal - outProcessed) : N_step;
+            for (size_t i = 0; i < validToCopy; i++) {
+                pOutput[(outProcessed + i) * inputChannels + ch] = out_buf[M - 1 + i];
+            }
+
+            outProcessed += N_step;
         }
     }
 
