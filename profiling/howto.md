@@ -1,3 +1,16 @@
+# How to use samply
+
+compile with the right flags, for example cl /Zi /Oy-,
+in this case can simply do ./nob -profiling (uses clang-cl)
+
+```pwsh
+./nob -profiling
+cd build
+samply record ./main.exe ..\samples\IN_Snare_Classic.wav ..\samples\IR_DocciaAlbergo_44100.wav ..\samples\OUT_Classic_Doccia.wav
+```
+
+---
+
 # How to use gprof and transform output into png
 
 ## Compilation

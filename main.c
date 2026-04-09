@@ -94,10 +94,12 @@ void convolve_parallel(const float *pInput, size_t inputSize, const float *pKern
                        unsigned int kernelChannels) {
     size_t outputSize = inputSize + kernelSize - 1;
 
+    int n;  // msvc supports older OpenMP version,
+            // must declare int var (not size_t) outside the loop
 #pragma omp parallel for schedule(static)
-    for (size_t n = 0; n < outputSize; n++) {
-        size_t k_start = (n >= inputSize) ? (n - inputSize + 1) : 0;
-        size_t k_end = (n < kernelSize) ? n : (kernelSize - 1);
+    for (n = 0; n < (int)outputSize; n++) {
+        size_t k_start = (n >= (int)inputSize) ? (n - inputSize + 1) : 0;
+        size_t k_end = (n < (int)kernelSize) ? (size_t)n : (kernelSize - 1);
 
         if (inputChannels == 2) {
             float sumL = 0.0f;
@@ -178,8 +180,9 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
     }
 
     if (inputChannels == 2) {
+		int n; 
 #pragma omp parallel for schedule(static)
-        for (size_t n = 0; n < outputSize; n++) {
+        for (n = 0; n < (int)outputSize; n++) {
             __m256 sumL_vec = _mm256_setzero_ps();
             __m256 sumR_vec = _mm256_setzero_ps();
             const float *inL = &pInputL[n];
@@ -201,8 +204,9 @@ void convolve_simd(const float *pInput, size_t inputSize, const float *pKernel,
             pOutput[n * 2 + 1] = sumR;
         }
     } else {
+		int n;
 #pragma omp parallel for schedule(static)
-        for (size_t n = 0; n < outputSize; n++) {
+        for (n = 0; n < (int)outputSize; n++) {
             __m256 sumL_vec = _mm256_setzero_ps();  // 8 lanes of 0.0f
             const float *inL = &pInputL[n];
 
@@ -237,7 +241,7 @@ defer:
 // For simplicity and alignment, we'll stick to powers of 2 >= 32.
 static size_t find_next_pffft_size(size_t n) {
     size_t res = 32;
-    while (res < n) res <<= 1;
+    while (res < n) res = res << 1;
     return res;
 }
 
