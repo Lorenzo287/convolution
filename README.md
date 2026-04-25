@@ -1,4 +1,4 @@
-# Convolution Project
+# WAV Convolution Engine
 
 A C-based convolution tool for WAV audio files, with naive, OpenMP, AVX2, and FFT-based implementations.
 
